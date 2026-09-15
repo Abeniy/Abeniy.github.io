@@ -1,2 +1,9 @@
+'use client';
 import Link from 'next/link';
-export default function ContentShell({title,children}:{title:string;children:React.ReactNode}){return <main id="main" className="content-page"><h1>{title}</h1>{children}<footer className="content-footer"><Link href="/about/">关于我与简历</Link><a href="mailto:1091068886@qq.com">1091068886@qq.com</a></footer></main>;}
+import {usePathname} from 'next/navigation';
+import styles from './ContentShell.module.css';
+const links=[['/','首页'],['/works/','作品'],['/experience/','经历'],['/gaming/','游戏档案'],['/about/','关于我']];
+export default function ContentShell({title,children,width='reading',hideTitle=false}:{title:string;children:React.ReactNode;width?:'reading'|'wide';hideTitle?:boolean}){
+ const path=usePathname();
+ return <div className={styles.layout}><aside className={styles.sidebar}><div className={styles.avatar} aria-hidden="true"/><nav aria-label="页面目录">{links.map(([href,label])=><Link key={href} href={href} aria-current={(href==='/'?path==='/':path.startsWith(href.slice(0,-1)))?'page':undefined}>{label}</Link>)}{path.startsWith('/about')&&<a className={styles.subitem} href="#main">个人档案</a>}{path.startsWith('/lab')&&<Link className={styles.subitem} href="/lab/" aria-current="page">实验与笔记</Link>}</nav></aside><main id="main" className={`${styles.page} ${width==='wide'?styles.wide:''}`}>{!hideTitle&&<h1 className="page-title">{title}</h1>}{children}</main></div>;
+}

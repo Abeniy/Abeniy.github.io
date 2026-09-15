@@ -1,3 +1,4 @@
 import ContentShell from '@/components/ContentShell';
+import styles from '@/components/Editorial.module.css';
 const entries=[['2026.06 — 2026.11','腾讯 · IEG 光子事业群','游戏策划','进行中。具体项目职责待补充。'],['2025.04 — 2025.06','网易雷火 · 用户体验研究中心','项目管理','通过项目管理平台跟进 Bug 生命周期，累计推动 70+ 项 Bug 修复，输出 20+ 份可执行优化报告。'],['2024.11 — 2025.02','心里有光 · 心光工作室','UI/UX 产品体验设计师','参与界面布局、色彩规范、交互反馈与设计规范建设，推动方案从概念到上线。'],['2024.08 — 2024.11','上海人工智能实验室','技术美术','负责网球技战术可视化系统的 Unity 3D 渲染与视觉效果，系统应用于 2024 中国网球公开赛央视直播。']];
-export default function Experience(){return <ContentShell title="经历">{entries.map(([date,name,role,summary])=><article className="entry" key={name}><p className="eyebrow">{date}</p><h2>{name}</h2><p>{role}</p><p className="muted">{summary}</p></article>)}</ContentShell>;}
+export default function Experience(){return <ContentShell title="经历">{entries.map(([date,name,role,summary])=><article className={styles.timelineRow} key={name}><p className={styles.date}>{date}</p><div><h2 className="entry-title">{name}</h2><p className="muted">{role}</p><p>{summary}</p></div></article>)}</ContentShell>;}

@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import type { Theme } from './theme';
+import {addBlockoutEnvironment, blockoutViews} from './camp-layout';
 
-export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlow: () => void, positionHotspots: (points: Array<{x:number;y:number}>) => void) {
+export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlow: () => void, positionHotspots: (points: Array<{x:number;y:number}>) => void, preview=false) {
   const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:false, preserveDrawingBuffer:true, powerPreference:'low-power'});
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
   const scene = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-16,16,11,-11,.1,160);
+  const camera = preview ? new THREE.PerspectiveCamera(40,1,.1,200) : new THREE.OrthographicCamera(-16,16,11,-11,.1,160);
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
   const fog = new THREE.FogExp2('#101f2c',.017); scene.fog=fog;
   scene.background=new THREE.Color('#101f2c');
@@ -20,6 +21,8 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
   const jacket=mat('#c08f52');const trousers=mat('#35474a');const boot=mat('#292f31');const cream=mat('#ffeed0');
   const mesh=(geo:THREE.BufferGeometry, material:THREE.Material, x=0,y=0,z=0,parent:THREE.Object3D=scene)=>{const m=new THREE.Mesh(geo,material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
   let seed=281;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+  if(preview) addBlockoutEnvironment(scene);
+  else {
   const groundGeo=new THREE.PlaneGeometry(100,100,65,65);groundGeo.rotateX(-Math.PI/2);
   const positions=groundGeo.attributes.position;
   for(let i=0;i<positions.count;i++){const x=positions.getX(i),z=positions.getZ(i);const edge=Math.min(1,Math.hypot(x,z)/14);positions.setY(i,-.10+(random()-.5)*.22*edge);}
@@ -36,6 +39,7 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
   for(let i=0;i<90;i++){const a=random()*6.28,r=2.5+random()*10;transform.position.set(Math.cos(a)*r,.03,Math.sin(a)*r);transform.rotation.set(random(),random(),random());transform.scale.set(.5+random()*1.8,.3+random()*.6,.5+random());transform.updateMatrix();pebbles.setMatrixAt(i,transform.matrix);}
   function pine(x:number,z:number,height:number){const group=new THREE.Group();group.position.set(x,0,z);scene.add(group);mesh(new THREE.CylinderGeometry(.10,.24,height,5),bark,0,height/2,0,group);for(let level=0;level<3;level++){const h=height*(.55-level*.1);const radius=height*(.23-level*.035);const c=mesh(new THREE.ConeGeometry(radius,h,5),level%2?leaves2:leaves,0,height*(.46+level*.2),0,group);c.rotation.y=level*.7+random();}group.rotation.z=(random()-.5)*.08;}
   [[-12,-5,8],[-9,-12,7],[-15,-13,9],[10,-10,8],[14,-4,8],[-11,8,7]].forEach(([x,z,h])=>pine(x,z,h));
+  }
   // A small ring of stones and crossed logs form the only camp props.
   for(let i=0;i<9;i++){const a=i/9*Math.PI*2;const r=mesh(new THREE.DodecahedronGeometry(.23+random()*.06,0),rockMat,Math.cos(a)*.74,.12,Math.sin(a)*.64);r.scale.set(1.15,.7,.9);r.rotation.set(random(),random(),random());}
   for(let i=0;i<4;i++){const log=mesh(new THREE.CylinderGeometry(.12,.16,1.13,7),coal,0,.18,0);log.rotation.z=Math.PI/2;log.rotation.y=i*Math.PI/4;}
@@ -65,7 +69,10 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
   const moonColor=new THREE.Color('#8196d0'),sunColor=new THREE.Color('#fff0d5'),nightAmbient=new THREE.Color('#72819b'),dayAmbient=new THREE.Color('#bcd4e0');
   const pointer=new THREE.Vector2();const smooth=new THREE.Vector2();
   let mobile=false;
-  function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;mobile=w<760;renderer.setPixelRatio(Math.min(window.devicePixelRatio,mobile?1:1.5));renderer.setSize(w,h,false);const halfHeight=mobile?12.5:10.5;camera.left=-halfHeight*w/h;camera.right=halfHeight*w/h;camera.top=halfHeight;camera.bottom=-halfHeight;camera.position.set(10,19,23);camera.lookAt(0,0,-2.6);camera.updateProjectionMatrix();renderer.shadowMap.needsUpdate=true;draw(0);}
+  function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;mobile=w<760;renderer.setPixelRatio(Math.min(window.devicePixelRatio,mobile?1:1.5));renderer.setSize(w,h,false);
+    if(camera instanceof THREE.PerspectiveCamera){const view=blockoutViews[mobile?'mobile':'desktop'];camera.aspect=w/h;camera.fov=view.fov;camera.position.set(view.position[0],view.position[1],view.position[2]);camera.lookAt(new THREE.Vector3(...view.target));}
+    else{const halfHeight=mobile?12.5:10.5;camera.left=-halfHeight*w/h;camera.right=halfHeight*w/h;camera.top=halfHeight;camera.bottom=-halfHeight;camera.position.set(10,19,23);camera.lookAt(0,0,-2.6);}
+    camera.updateProjectionMatrix();renderer.shadowMap.needsUpdate=true;draw(0);}
   const observer=new ResizeObserver(resize);observer.observe(canvas);
   function draw(dt:number){
     const target=desired==='day'?1:0;blend=reduced?target:THREE.MathUtils.lerp(blend,target,Math.min(1,dt/.10));if(Math.abs(blend-target)<.001)blend=target;
@@ -77,7 +84,9 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
     for(let i=0;i<18;i++){const y=(time*.38+sparkSeeds[i]*3)%3;sparksData[i*3]=Math.sin(y*2+i)*(.08+y*.07);sparksData[i*3+1]=.65+y;sparksData[i*3+2]=Math.cos(y+i)*.15;}
     sparksGeo.attributes.position.needsUpdate=true;
     smoke.forEach((s,i)=>{const y=(time*.22+i*.5)%3;s.position.set(Math.sin(y)*.3,.8+y,-.05);s.scale.setScalar(.5+y*.5);});
-    smooth.lerp(pointer,.04);camera.lookAt(smooth.x*.35,smooth.y*.2,-2.6);renderer.render(scene,camera);
+    if(preview){camera.lookAt(new THREE.Vector3(...blockoutViews[mobile?'mobile':'desktop'].target));hemisphere.intensity=.45;sun.intensity=.65;fill.intensity=1.3;fireLight.intensity=42;fireLight.distance=10;fireLight.decay=2;renderer.toneMappingExposure=.95;smokeMaterial.opacity=0;sparksMat.opacity=0;}
+    else{smooth.lerp(pointer,.04);camera.lookAt(smooth.x*.35,smooth.y*.2,-2.6);}
+    renderer.render(scene,camera);
     positionHotspots([new THREE.Vector3(0,.8,0),new THREE.Vector3(1.65,1.1,.6)].map(p=>{p.project(camera);return {x:(p.x+1)*50,y:(1-p.y)*50};}));
     if(!ready){ready=true;onReady();}
   }
@@ -88,5 +97,5 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
   const move=(e:PointerEvent)=>{if(mobile||paused||reduced||e.pointerType!=='mouse')return;pointer.set((e.clientX/window.innerWidth-.5)*2,-(e.clientY/window.innerHeight-.5)*2);};
   const leave=()=>pointer.set(0,0);window.addEventListener('pointermove',move);document.addEventListener('pointerleave',leave);document.addEventListener('visibilitychange',visibility);
   resize();start();
-  return {setTheme(theme:Theme,immediate=false){desired=theme;if(immediate)blend=theme==='day'?1:0;start();},setPaused(value:boolean){paused=value;pointer.set(0,0);start();},setReduced(value:boolean){reduced=value;pointer.set(0,0);start();},dispose(){disposed=true;cancelAnimationFrame(frame);observer.disconnect();intersection.disconnect();window.removeEventListener('pointermove',move);document.removeEventListener('pointerleave',leave);document.removeEventListener('visibilitychange',visibility);scene.traverse(object=>{if(object instanceof THREE.Mesh||object instanceof THREE.Points)object.geometry.dispose();});new Set(materials).forEach(m=>m.dispose());renderer.dispose();renderer.forceContextLoss();}};
+  return {setTheme(theme:Theme,immediate=false){desired=preview?'night':theme;if(immediate)blend=desired==='day'?1:0;start();},setPaused(value:boolean){paused=value;pointer.set(0,0);start();},setReduced(value:boolean){reduced=value;pointer.set(0,0);start();},dispose(){disposed=true;cancelAnimationFrame(frame);observer.disconnect();intersection.disconnect();window.removeEventListener('pointermove',move);document.removeEventListener('pointerleave',leave);document.removeEventListener('visibilitychange',visibility);const owned=new Set(materials);const geometries=new Set<THREE.BufferGeometry>();scene.traverse(object=>{if(object instanceof THREE.Mesh||object instanceof THREE.Points){geometries.add(object.geometry);(Array.isArray(object.material)?object.material:[object.material]).forEach(m=>owned.add(m));}});geometries.forEach(g=>g.dispose());owned.forEach(m=>m.dispose());sun.shadow.dispose();renderer.dispose();renderer.forceContextLoss();}};
 }
