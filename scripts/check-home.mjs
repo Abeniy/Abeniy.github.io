@@ -1,0 +1,30 @@
+import {chromium} from '@playwright/test';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({channel:'msedge',headless:true,args:['--enable-webgl','--ignore-gpu-blocklist']});
+const results=[];
+const origin=process.env.TEST_ORIGIN||'http://localhost:3000';
+async function test(name,fn){try{await fn();results.push({name,pass:true});}catch(e){results.push({name,pass:false,error:e.message});}}
+await test('Local time boundaries and automatic updates',async()=>{
+ for(const [hour,minute,expected] of [[6,59,'night'],[7,0,'day'],[18,59,'day'],[19,0,'night']]){
+  const context=await browser.newContext({reducedMotion:'reduce'});const page=await context.newPage();await page.clock.install({time:new Date(2026,8,15,hour,minute,0)});await page.goto(origin);assert.equal(await page.locator('html').getAttribute('data-theme'),expected);
+  if(minute===59){await page.clock.runFor(61000);assert.equal(await page.locator('html').getAttribute('data-theme'),expected==='day'?'night':'day');}
+  await context.close();
+ }
+});
+await test('Theme memory, navigation and automatic reset',async()=>{
+ const context=await browser.newContext({reducedMotion:'reduce'});const page=await context.newPage();await page.goto(origin);await page.getByRole('button',{name:'主题设置'}).click();await page.getByRole('button',{name:'白天',exact:true}).click();await page.reload();assert.equal(await page.locator('html').getAttribute('data-theme'),'day');await page.getByRole('navigation').getByRole('link',{name:'关于我'}).click();assert.equal(await page.locator('html').getAttribute('data-theme'),'day');await page.getByRole('button',{name:'主题设置'}).click();await page.getByRole('button',{name:'跟随当地时间',exact:true}).click();assert.equal(await page.locator('html').getAttribute('data-mode'),'auto');await context.close();
+});
+await test('Reduced motion and missing WebGL show valid static images',async()=>{
+ for(const reduced of [true,false]){const context=await browser.newContext({reducedMotion:reduced?'reduce':'no-preference'});const page=await context.newPage();if(!reduced)await page.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...rest){if(type.includes('webgl'))return null;return original.call(this,type,...rest);};});await page.goto(origin,{waitUntil:'networkidle'});await page.waitForTimeout(300);assert.equal(await page.locator('canvas').evaluate(c=>getComputedStyle(c).opacity),'0');assert.equal(await page.getByRole('button',{name:'暂停场景动画'}).count(),0);assert.ok(await page.locator('picture img').evaluateAll(imgs=>imgs.every(i=>i.complete&&i.naturalWidth>0)));await context.close();}
+});
+await test('Unavailable storage still permits theme changes',async()=>{
+ const context=await browser.newContext({reducedMotion:'reduce'});const page=await context.newPage();await page.addInitScript(()=>{Storage.prototype.getItem=()=>{throw Error('blocked');};Storage.prototype.setItem=()=>{throw Error('blocked');};});await page.goto(origin);const before=await page.locator('html').getAttribute('data-theme');await page.getByRole('button',{name:before==='day'?'切换到夜晚':'切换到白天'}).click();assert.notEqual(await page.locator('html').getAttribute('data-theme'),before);await context.close();
+});
+await test('360, 768 and 1440 layouts and mobile keyboard menu',async()=>{
+ for(const width of [360,768,1440]){const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});const page=await context.newPage();await page.goto(origin);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await page.locator('main p:not(.sr-only)').count(),0);if(width===360){const button=page.getByRole('button',{name:'打开导航'});await button.focus();await page.keyboard.press('Enter');assert.equal(await page.getByRole('navigation').isVisible(),true);await page.keyboard.press('Escape');assert.equal(await button.getAttribute('aria-expanded'),'false');await button.click();}assert.equal(await page.getByRole('navigation').getByRole('link').count(),5);await context.close();}
+});
+await test('Animation pauses and resumes; hotspots route correctly',async()=>{
+ const context=await browser.newContext({viewport:{width:1440,height:1000}});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(origin,{waitUntil:'networkidle'});await page.waitForFunction(()=>getComputedStyle(document.querySelector('canvas')).opacity==='1');await page.getByRole('button',{name:'暂停场景动画'}).click();await page.waitForTimeout(700);const first=await page.locator('canvas').evaluate(c=>c.toDataURL());await page.waitForTimeout(250);assert.equal(await page.locator('canvas').evaluate(c=>c.toDataURL()),first);await page.getByRole('button',{name:'播放场景动画'}).click();await page.waitForTimeout(250);assert.notEqual(await page.locator('canvas').evaluate(c=>c.toDataURL()),first);await page.getByRole('link',{name:'篝火：作品'}).click();await page.waitForURL('**/works/');assert.equal(await page.locator('article').count(),8);await page.getByRole('link',{name:'Brush3D',exact:true}).click();await page.waitForURL('**/works/brush3d/');await page.getByRole('link',{name:'ABENIY 首页'}).click();await page.waitForURL(origin+'/');await page.waitForFunction(()=>{const c=document.querySelector('canvas');return c&&getComputedStyle(c).opacity==='1';});assert.deepEqual(errors,[]);await context.close();
+});
+await test('All navigation destinations return real pages',async()=>{const page=await browser.newPage();for(const route of ['/works/','/experience/','/gaming/','/about/','/lab/']){const response=await page.goto(origin+route);assert.equal(response.status(),200);assert.equal(await page.locator('h1').count(),1);}const response=await page.goto(origin+'/missing-page/');assert.equal(response.status(),404);await page.close();});
+await browser.close();console.log(JSON.stringify(results,null,2));if(results.some(r=>!r.pass))process.exitCode=1;
