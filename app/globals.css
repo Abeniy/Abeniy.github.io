@@ -1,0 +1,8 @@
+:root { color-scheme: dark; --background: #0a151b; --surface: #12242c; --text: #eeeae0; --muted: #a6b9bf; --accent: #ffbc75; --line: #31434b; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--background); color: var(--text); font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 16px; line-height: 1.8; }
+a { color: inherit; text-underline-offset: 6px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+.skip { position: fixed; top: -100px; left: 16px; padding: 8px 16px; background: var(--surface); z-index: 100; }
+.skip:focus { top: 16px; }
+::selection { color: var(--background); background: var(--accent); }
