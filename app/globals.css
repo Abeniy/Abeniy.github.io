@@ -10,7 +10,7 @@
 .entry{margin:0 0 var(--space-8)}.entry:last-child{margin-bottom:0}.entry p{margin:var(--space-2) 0 0}.entry .eyebrow{margin:0 0 var(--space-2)}.empty{padding:0;margin:var(--space-4) 0}
 @font-face{font-family:'DM Sans';src:url('/fonts/dm-sans.ttf') format('truetype');font-weight:100 1000;font-display:swap}
 @font-face{font-family:'EB Garamond';src:url('/fonts/eb-garamond.ttf') format('truetype');font-weight:400 800;font-display:swap}
-:root[data-theme=day]:has([aria-label="页面目录"]){--background:#faf9f6;--surface:#f7f5f0;--text:#2a2622;--muted:#7a746c;--line:#e4e0d8;--accent:#8aab82}
+:root[data-theme=day]:has([aria-label="页面目录"],[data-work-gallery]){--background:#faf9f6;--surface:#f7f5f0;--text:#2a2622;--muted:#7a746c;--line:#e4e0d8;--accent:#8aab82}
 body:has([aria-label="页面目录"]){font-family:'DM Sans','PingFang SC','Microsoft YaHei',sans-serif;font-weight:300}
 .entry-title{font-size:14px;line-height:1.6;font-weight:300}
 .entry p{line-height:1.6}.entry .eyebrow{font-size:12px}

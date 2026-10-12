@@ -1,5 +1,5 @@
 export const projects = [
- {slug:'brush3d',name:'Brush3D',type:'交互工具',date:'2025',summary:'3D 绘画笔刷的个性化风格定制方法研究。'},
+ {slug:'brush3d',cover:'/projects/brush3d-cover.png',name:'Brush3D',type:'交互工具',date:'2025',summary:'3D 绘画笔刷的个性化风格定制方法研究。'},
  {slug:'heartlight',name:'心光 APP',type:'产品设计',date:'2025',summary:'围绕生活记录与 AI 陪伴的产品体验设计。'},
  {slug:'wonderbook',name:'奇迹书 Wonderbook',type:'产品设计',date:'2024',summary:'以纸为载体的儿童科学启蒙互动学习体验。'},
  {slug:'aivatar',name:'数字人工作坊 Aivatar Studio',type:'产品设计',date:'2024',summary:'AI 辅助的虚拟形象创作网站设计。'},

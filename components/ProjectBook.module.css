@@ -1,0 +1,54 @@
+.reader{width:94%;max-width:1280px;margin:48px auto 40px;text-align:center}
+.book{position:relative;perspective:1400px;background:#f4f1e9;border:1px solid #d6d3cc;padding:3px;box-shadow:0 3px 0 #d0cdc5,0 5px 0 #e5e2dc,0 12px 12px -6px #0006,0 26px 32px -18px #0005;touch-action:pan-y}
+.spread{position:relative;display:flex;aspect-ratio:3368/1190;perspective:1600px}
+.half{width:50%;height:100%;background-size:200% 100%;background-repeat:no-repeat;background-color:white}
+.leaf{position:absolute;top:0;width:50%;height:100%;transform-style:preserve-3d;z-index:2;pointer-events:none}
+.front,.back{position:absolute;inset:0;backface-visibility:hidden;background-size:200% 100%;background-repeat:no-repeat;background-color:white}
+.back{transform:rotateY(180deg)}
+.forward{left:50%;transform-origin:left center;animation:forward .85s ease-in-out both}
+.backward{left:0;transform-origin:right center;animation:backward .85s ease-in-out both}
+@keyframes forward{from{transform:rotateY(0)}to{transform:rotateY(-180deg)}}
+@keyframes backward{from{transform:rotateY(0)}to{transform:rotateY(180deg)}}
+.spine{position:absolute;inset:3px;pointer-events:none;background:linear-gradient(90deg,transparent 46%,#00000005 48%,#00000022 49.9%,#ffffff38 50.1%,transparent 54%)}
+.leftEdge,.rightEdge{position:absolute;top:0;bottom:0;width:12%;border:0;background:transparent;cursor:pointer}
+.leftEdge{left:0}.rightEdge{right:0}.leftEdge:disabled,.rightEdge:disabled{cursor:default}
+.focusTrigger{position:absolute;left:12%;top:0;width:76%;height:100%;border:0;background:transparent;cursor:zoom-in;z-index:3}
+.focusBadge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;border-radius:999px;padding:13px 22px;background:#faf9f6;color:#2a2622;font:400 13px 'DM Sans',sans-serif;box-shadow:0 3px 16px #0002;opacity:0;transition:opacity .15s;white-space:nowrap}
+.focusTrigger:hover .focusBadge,.focusTrigger:focus-visible .focusBadge{opacity:1}
+.focusTrigger:focus-visible .focusBadge{left:50%!important;top:50%!important}
+.focusTrigger:disabled{pointer-events:none}
+.focusDialog{position:fixed;inset:0;width:96vw;max-width:96vw;height:94svh;max-height:94svh;margin:auto;padding:64px 20px 20px;border:0;background:var(--background);color:var(--text);overflow:auto}
+.focusDialog::backdrop{background:rgba(0,0,0,.8)}
+.closeFocus{position:sticky;top:0;display:block;margin:-44px 0 20px auto;min-width:72px;min-height:44px;border:1px solid var(--line);border-radius:24px;background:var(--background);color:var(--text);cursor:pointer;z-index:1}
+.focusImage{overflow:auto;max-height:calc(94svh - 90px)}
+.focusImage img{display:block;width:100%;height:auto;min-width:900px}
+@media(hover:none){.focusBadge{opacity:1;left:auto!important;top:auto!important;right:8px;bottom:8px;transform:none;padding:10px 16px}}
+.controls{display:flex;justify-content:center;align-items:center;gap:20px;margin-top:32px;font-size:12px;color:var(--muted)}
+.controls button{width:44px;height:44px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--text);cursor:pointer;flex-shrink:0}
+.controls button:disabled{opacity:.3;cursor:default}.original{display:inline-block;margin-top:12px;font-size:12px;color:var(--muted)}
+@media(max-width:768px){.reader{width:100%;margin-top:32px}.controls{gap:12px}.controls span{max-width:180px}}
+@media(prefers-reduced-motion:reduce){.forward,.backward{animation-duration:1ms}}
+.focusTrigger{cursor:none;mix-blend-mode:difference}
+.focusBadge{padding:0;border-radius:0;background:none;box-shadow:none;color:white;font-size:14px}
+.focusDialog{width:100vw;max-width:100vw;height:100svh;max-height:100svh;padding:0;background:transparent;overflow:hidden}
+.focusDialog::backdrop{background:rgba(0,0,0,.88);animation:veilIn .65s ease both}
+.focusCanvas{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:4vw;border:0;background:none;cursor:none}
+.enlarged{display:block;width:100%;height:auto;max-height:88svh;object-fit:contain;animation:breatheIn .7s cubic-bezier(.2,.7,.2,1) both}
+.closeBadge{position:fixed;left:50%;top:85%;transform:translate(-50%,-50%);pointer-events:none;color:white;mix-blend-mode:difference;font:400 14px 'DM Sans',sans-serif}
+.closing .enlarged{animation:breatheOut .45s ease both}
+.closing::backdrop{animation:veilOut .45s ease both}
+@keyframes breatheIn{from{opacity:0;transform:scale(.93) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes breatheOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.95)}}
+@keyframes veilIn{from{background:rgba(0,0,0,0)}to{background:rgba(0,0,0,.88)}}
+@keyframes veilOut{from{background:rgba(0,0,0,.88)}to{background:rgba(0,0,0,0)}}
+@media(hover:none){.focusBadge{padding:8px}.closeBadge{left:50%!important;top:auto!important;bottom:24px}.focusCanvas{cursor:pointer}}
+@media(prefers-reduced-motion:reduce){.enlarged,.focusDialog::backdrop{animation:none}.closing .enlarged,.closing::backdrop{animation-duration:1ms}}
+.focusDialog{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scroll-behavior:auto}
+.focusCanvas{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;height:auto;min-height:100%;gap:48px;padding:32px 4vw 64px;animation:breatheIn .7s cubic-bezier(.2,.7,.2,1) both}
+.focusPage{display:block;flex:none;width:100%;padding:0;border:0;background:transparent;cursor:none}
+.focusPage .enlarged{width:100%;height:auto;max-height:none;animation:none}
+.closing .focusCanvas{animation:breatheOut .45s ease both}
+.closing .enlarged{animation:none}
+.closeBadge{z-index:5}
+@media(hover:none){.focusPage{cursor:pointer}.focusCanvas{gap:24px;padding:24px 12px 64px}}
+@media(prefers-reduced-motion:reduce){.focusCanvas{animation:none}.closing .focusCanvas{animation-duration:1ms}}

@@ -1,0 +1,13 @@
+.gallery{--card-width:min(500px,42vw,54svh);padding-top:148px;min-height:100svh;overflow:hidden;background:var(--background);font-family:'DM Sans','PingFang SC','Microsoft YaHei',sans-serif}
+.filters{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 5.5vw;font-size:12px;color:var(--muted)}.filters>div{display:flex;flex-wrap:wrap;gap:4px}.filters button{border:0;background:none;color:var(--muted);padding:10px 14px;cursor:pointer;font-size:12px}.filters button[aria-pressed=true]{color:var(--text);text-decoration:underline;text-underline-offset:6px}
+.rail{display:flex;align-items:center;gap:clamp(40px,8vw,144px);padding:48px calc((100% - var(--card-width))/2) 24px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;min-height:calc(var(--card-width) + 180px)}.rail::-webkit-scrollbar{display:none}
+.card{flex:0 0 var(--card-width);min-width:0;scroll-snap-align:center;transform:scale(.83);opacity:.55;transition:transform .4s,opacity .4s}.active{transform:scale(1);opacity:1}.card:focus-within{opacity:1}
+.card h2{font-size:24px;font-family:'EB Garamond','PingFang SC','Microsoft YaHei',serif;font-weight:400;line-height:1.4;margin:0 0 24px;min-height:34px}.card h2 a{text-decoration:none}
+.imageLink{display:block;aspect-ratio:1;overflow:hidden;background:var(--surface)}.imageLink img{display:block;width:100%;height:100%;object-fit:contain}
+.placeholder{height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:32px;border:1px solid var(--line);color:var(--muted)}.placeholder span{font-size:12px}.placeholder strong{font-size:clamp(22px,2.5vw,36px);font-weight:400;line-height:1.4;color:var(--text)}
+.meta{display:flex;justify-content:space-between;gap:24px;margin-top:24px;font-size:11px;line-height:1.6}.meta>div{text-align:right;max-width:85%}.meta p{margin:4px 0 0;color:var(--muted)}
+.controls{display:flex;justify-content:center;align-items:center;gap:24px;padding:12px 0 32px;font-size:12px}.controls button{width:44px;height:44px;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:50%;cursor:pointer}.controls button:disabled{opacity:.3;cursor:default}
+@media(max-width:768px){.gallery{--card-width:78vw;padding-top:84px}.filters{padding:0 24px;align-items:flex-start;flex-direction:column;gap:8px}.filters button{padding:10px 8px}.rail{gap:20px;padding-top:32px}.card h2{font-size:20px}.placeholder{padding:24px}.meta{gap:12px}.controls{padding-bottom:24px}}
+@media(max-width:768px){.gallery{padding-top:108px}}
+@media(prefers-reduced-motion:reduce){.card{transition:none}}
+
