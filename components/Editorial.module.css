@@ -7,6 +7,21 @@
 .timelineRow p{margin:2px 0 0;line-height:1.6}
 .timelineRow :global(.muted){font-size:12px;line-height:1.6}
 .prose{max-width:720px;margin:0}
+.bookBack{display:inline-flex;align-items:center;min-height:44px;font-size:13px;color:var(--muted)}
+.bookArea{width:94%;max-width:1280px;margin:0 auto 40px}
+.bookArea .bookBack{position:relative;top:-10px;margin-bottom:48px}
+.bookArea .bookTitle{text-align:left;margin:72px 0 0}
+.projectVideo{display:block;width:80%;max-width:960px;height:auto;margin-top:24px;background:#000}
+@media(max-width:768px){.projectVideo{width:100%}}
+.projectIntro{display:grid;grid-template-columns:minmax(0,2fr) minmax(200px,1fr);gap:48px;margin:24px 0 40px;text-align:left}
+.introText h2{font-size:16px;font-weight:400;line-height:1.6;margin:0 0 16px}
+.introText p{font-size:14px;line-height:1.8;font-weight:300}
+.introText p+p{margin-top:12px}
+.projectFacts{margin:0;display:flex;flex-direction:column;gap:20px;font-size:13px;line-height:1.8}
+.projectFacts dt{font-size:12px;color:var(--muted);margin-bottom:4px}
+.projectFacts dd{margin:0}
+@media(max-width:768px){.projectIntro{grid-template-columns:1fr;gap:24px}.projectFacts{gap:16px}}
+@media(max-width:768px){.bookArea{width:100%}.bookArea .bookBack{margin-bottom:32px}}
 .projectPages{width:100%;margin:24px 0 32px;display:grid;gap:48px}
 .projectPages figure{margin:0;min-width:0}
 .projectPages figure>a{display:block;position:relative;isolation:isolate;cursor:zoom-in;padding:3px;background:#f5f3ed;border:1px solid #d6d3cc;box-shadow:0 2px 0 #d0cdc5,0 4px 0 #e5e2dc,0 8px 10px -5px rgba(0,0,0,.4),0 20px 26px -15px rgba(0,0,0,.32)}

@@ -2,7 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import styles from './ProjectBook.module.css';
 type Page={frame:number;label:string;description:string};
-export default function ProjectBook({pages}:{pages:Page[]}){
+export default function ProjectBook({pages,projectSlug='brush3d'}:{pages:Page[];projectSlug?:string}){
  const [index,setIndex]=useState(0),[turning,setTurning]=useState<{next:number;step:number}|null>(null);
  const touch=useRef<number|null>(null);
  const book=useRef<HTMLDivElement>(null);
@@ -41,7 +41,7 @@ export default function ProjectBook({pages}:{pages:Page[]}){
   el.addEventListener('wheel',wheel,{passive:false});
   return()=>el.removeEventListener('wheel',wheel);
  },[index,turning,pages.length]);
- const src=(i:number)=>`url("/projects/brush3d/frame-${pages[i].frame}.png")`;
+ const src=(i:number)=>`url("/projects/${projectSlug}/frame-${pages[i].frame}.png")`;
  const page=pages[index];
  return <section className={styles.reader} aria-label="项目作品书" tabIndex={0} onKeyDown={e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();turn(e.key==='ArrowRight'?1:-1);}}}>
   <div ref={book} className={styles.book} onTouchStart={e=>{touch.current=e.touches[0].clientX;}} onTouchEnd={e=>{if(touch.current!==null){const delta=e.changedTouches[0].clientX-touch.current;if(Math.abs(delta)>50)turn(delta<0?1:-1);}touch.current=null;}}>
@@ -68,7 +68,7 @@ export default function ProjectBook({pages}:{pages:Page[]}){
   <dialog ref={dialog} className={`${styles.focusDialog} ${closing?styles.closing:''}`} aria-label={`放大查看：${page.label}`} onKeyDown={e=>e.stopPropagation()} onCancel={e=>{e.preventDefault();closeFocus();}} onClose={()=>setClosing(false)}>
    <div className={styles.focusCanvas} onAnimationEnd={e=>{if(closing&&e.target===e.currentTarget){dialog.current?.close();setClosing(false);}}} onPointerMove={e=>{if(e.pointerType!=='mouse')return;closeBadge.current?.style.setProperty('left',`${e.clientX}px`);closeBadge.current?.style.setProperty('top',`${e.clientY}px`);}}>
     {pages.map((detail,i)=><button key={detail.frame} data-focus-page={i} className={styles.focusPage} aria-label={`${detail.label}，点击关闭大图`} onClick={closeFocus}>
-     <img className={styles.enlarged} src={`/projects/brush3d/frame-${detail.frame}.png`} alt={detail.description} width={3368} height={1190}/>
+     <img className={styles.enlarged} src={`/projects/${projectSlug}/frame-${detail.frame}.png`} alt={detail.description} width={3368} height={1190}/>
     </button>)}
    </div>
     <span ref={closeBadge} className={styles.closeBadge}>close</span>

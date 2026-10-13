@@ -15,4 +15,20 @@
 @media(min-width:769px){.home .nav{position:absolute;left:0;top:228px;width:25vw;padding:0 28px;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'DM Sans','PingFang SC','Microsoft YaHei',sans-serif;font-weight:300;max-height:calc(100svh - 248px);overflow-y:auto}.home .nav a{font-size:13px;line-height:normal;letter-spacing:.03em;padding:6px 0}.home .nav a[aria-current]{font-weight:400}.home .nav a[aria-current]::after{display:none}}
 @media(min-width:761px) and (max-width:768px){.home .menuButton{display:block}.home .nav{display:none;position:absolute;left:20px;right:20px;top:78px;background:var(--surface);padding:20px;border:1px solid var(--line);border-radius:8px;flex-direction:column;align-items:stretch;gap:6px}.home .nav.open{display:flex}}
 .nav{font-family:'DM Sans','PingFang SC','Microsoft YaHei',sans-serif;font-weight:300}
+.header{position:fixed}
+@media(min-width:769px){
+ .header{height:60px;padding:0 40px}
+ .header .nav{position:fixed;left:0;right:auto;top:60px;bottom:0;width:min(18vw,260px);margin:0;padding:168px 28px 20px;display:flex;flex-direction:column;align-items:center;gap:4px;max-height:none;overflow-y:auto}
+ .content .nav{background:var(--background)}
+ .header .nav a{flex-shrink:0}
+ .header .nav a{font-size:13px;line-height:17px;letter-spacing:.03em;padding:6px 0;color:var(--muted);opacity:.45}
+ .header .nav a[aria-current]{color:var(--text);font-weight:400;opacity:1}
+ .header .nav a:hover,.header .nav a:focus-visible{opacity:1}
+ .header .nav a[aria-current]::after{display:none}
+}
+@media(min-width:761px) and (max-width:768px){
+ .header .menuButton{display:block}
+ .header .nav{display:none;position:absolute;left:20px;right:20px;top:60px;background:var(--surface);padding:20px;border:1px solid var(--line);border-radius:8px;flex-direction:column;align-items:stretch;gap:6px}
+ .header .nav.open{display:flex}
+}
 @media(max-width:768px){.home .nav a{font-size:12px;line-height:normal;letter-spacing:.06em;font-weight:300}.home .nav a[aria-current]{font-weight:400}}
