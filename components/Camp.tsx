@@ -13,10 +13,10 @@ export default function Camp({preview=false}:{preview?:boolean}){
  },[preview]);
  useEffect(()=>{engine.current?.setTheme(theme);},[theme]);useEffect(()=>{engine.current?.setPaused(paused);},[paused,ready]);
  return <main id="main" className={`${styles.camp} ${preview?styles.preview:''}`}>
-  <h1 className="sr-only">Abeniy · 杨静雯的作品与探索记录</h1><p className="sr-only">空旷的营地中，一个人坐在篝火旁烤棉花糖。可通过导航浏览作品、经历和游戏档案。</p>
+  <h1 className="sr-only">Abeniy · 杨静雯的作品与探索记录</h1><p className="sr-only">空旷的营地中，一个人坐在篝火旁烤棉花糖。可通过导航浏览作品、经历和关于我。</p>
   <div className={styles.backdrop} aria-hidden="true">{preview?<picture><source media="(max-width:759px)" srcSet="/scene/blockout-mobile.webp"/><img src="/scene/blockout-desktop.webp" alt="" width="1440" height="1000" fetchPriority="high"/></picture>:(['day','night'] as const).map(t=><picture key={t} className={t==='day'?styles.day:styles.night}><source media="(max-width:759px)" srcSet={`/scene/${t}-mobile.webp`}/><img src={`/scene/${t}-desktop.webp`} alt="" width="1440" height="1000" fetchPriority="high" /></picture>)}</div>
   <canvas ref={canvas} aria-hidden="true" className={`${styles.canvas} ${ready?styles.ready:''}`} />
-  <div className={styles.hotspots} aria-label="探索营地"><Link ref={fireLink} href="/works/" className={styles.fire} aria-label="篝火：作品"><span>作品</span></Link><Link ref={personLink} href="/about/" className={styles.person} aria-label="人物：关于我"><span>关于我</span></Link><Link href="/gaming/" className={styles.sky} aria-label="天空：游戏档案"><span>游戏档案</span></Link></div>
+  <div className={styles.hotspots} aria-label="探索营地"><Link ref={fireLink} href="/works/" className={styles.fire} aria-label="篝火：作品"><span>作品</span></Link><Link ref={personLink} href="/about/" className={styles.person} aria-label="人物：关于我"><span>关于我</span></Link></div>
   {!staticMode&&<button className={styles.pause} aria-label={paused?'播放场景动画':'暂停场景动画'} aria-pressed={paused} onClick={()=>setPaused(!paused)}><span aria-hidden="true">{paused?'▷':'Ⅱ'}</span></button>}
  </main>;
 }

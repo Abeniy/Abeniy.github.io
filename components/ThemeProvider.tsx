@@ -1,10 +1,10 @@
 'use client';
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { resolveTheme, type Theme, type ThemeMode } from '@/lib/theme';
-const Context = createContext<{theme: Theme; mode: ThemeMode; setMode: (mode: ThemeMode) => void}>({theme:'night',mode:'auto',setMode:()=>{}});
+const Context = createContext<{theme: Theme; mode: ThemeMode; setMode: (mode: ThemeMode) => void}>({theme:'day',mode:'day',setMode:()=>{}});
 export function ThemeProvider({children}: {children: React.ReactNode}) {
-  const [mode, updateMode] = useState<ThemeMode>('auto');
-  const [theme, updateTheme] = useState<Theme>('night');
+  const [mode, updateMode] = useState<ThemeMode>('day');
+  const [theme, updateTheme] = useState<Theme>('day');
   useEffect(() => {
     const value = document.documentElement.dataset.mode;
     updateMode(value === 'day' || value === 'night' ? value : 'auto');

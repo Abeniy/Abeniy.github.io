@@ -10,4 +10,10 @@
 .wide{flex:1;width:auto;max-width:none;padding:48px 24px}
 .layout:has(.wide) .sidebar{width:18vw;max-width:260px}
 .page p{margin:0;max-width:720px}
+/* Both resume pages scroll with the document, never inside the reading column. */
+.layout.resumePage{height:auto;min-height:100svh;overflow:visible}
+.layout.resumePage .page{height:auto;overflow:visible}
+@media(min-width:769px){.page:has(:global(#internship-heading)){width:980px}}
+@media(min-width:1600px){.layout.resumePage .page{margin-left:clamp(0px,calc((100vw - 1512px) * .3),240px)}}
+@media(min-width:769px) and (max-height:900px){.wide:has([aria-label="项目作品书"]){padding-top:28px}}
 @media(max-width:768px){.layout{padding-top:52px;height:auto;min-height:100svh;overflow:visible}.sidebar{display:none}.page{width:100%;max-width:none;height:auto;overflow:visible;padding:32px 24px}}

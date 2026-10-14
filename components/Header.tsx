@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useTheme } from './ThemeProvider';
 import styles from './Header.module.css';
-const links = [['/','首页'],['/works/','作品'],['/experience/','经历'],['/gaming/','游戏档案'],['/about/','关于我']];
+const links = [['/','首页'],['/works/','作品'],['/experience/','经历'],['/about/','关于我']];
 export default function Header() {
   const path = usePathname(); const preview=path.startsWith('/camp-preview'); const content=path!=='/'&&!preview; const {theme,mode,setMode} = useTheme();
   const [menu,setMenu] = useState(false); const [settings,setSettings] = useState(false);

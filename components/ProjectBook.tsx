@@ -57,8 +57,6 @@ export default function ProjectBook({pages,projectSlug='brush3d'}:{pages:Page[];
    <button className={styles.focusTrigger} aria-label="focus：放大当前书页" disabled={!!turning} onPointerMove={e=>{if(e.pointerType!=='mouse')return;const box=e.currentTarget.getBoundingClientRect();focusBadge.current?.style.setProperty('left',`${e.clientX-box.left}px`);focusBadge.current?.style.setProperty('top',`${e.clientY-box.top}px`);}} onClick={openFocus}>
     <span ref={focusBadge} className={styles.focusBadge}>focus</span>
    </button>
-   <button className={styles.leftEdge} aria-label="上一页" disabled={index===0} onClick={()=>turn(-1)}/>
-   <button className={styles.rightEdge} aria-label="下一页" disabled={index===pages.length-1} onClick={()=>turn(1)}/>
   </div>
   <div className={styles.controls}>
    <button onClick={()=>turn(-1)} disabled={index===0} aria-label="翻到上一页">←</button>
