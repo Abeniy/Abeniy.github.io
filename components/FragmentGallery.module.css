@@ -1,0 +1,44 @@
+.switcher{display:flex;gap:18px;font-size:12px;color:var(--muted);align-items:center}
+.switcher a{padding:10px 0}
+.switcher a[aria-current]{color:var(--text);text-decoration:underline;text-underline-offset:6px}
+.gallery{margin-left:min(18vw,260px);width:calc(100% - min(18vw,260px));min-height:100svh;padding:148px clamp(32px,5.5vw,88px) 80px;background:var(--background);font-family:'DM Sans','PingFang SC','Microsoft YaHei',sans-serif}
+.header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:48px;font-size:12px;color:var(--muted)}
+.heading{display:flex;align-items:center;gap:28px}
+.heading h1{font-size:12px;font-weight:400;margin:0;white-space:nowrap}
+.wall{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:start;column-gap:16px;row-gap:clamp(64px,7vw,120px)}
+.tile{display:flex;position:relative;flex-direction:column;gap:8px;width:100%;min-width:0;padding:0;margin:0;border:0;background:transparent;cursor:zoom-in;text-align:left;color:var(--text);transition:filter .3s,opacity .3s}
+.tile:focus-visible{outline:2px solid var(--text);outline-offset:5px}
+.image{display:block;width:100%;height:auto}
+.back{border:0;background:none;color:var(--text);font:inherit;padding:8px 0;cursor:pointer;text-align:left}
+.project{display:grid;grid-template-columns:minmax(140px,1fr) minmax(0,3fr);gap:32px;align-items:start}
+.projectInfo{position:sticky;top:120px}
+.projectInfo h1{font-size:18px;font-weight:400;margin:0 0 20px}
+.projectInfo p{font-size:12px;color:var(--muted)}
+.projectImages{display:flex;flex-direction:column;gap:48px;min-width:0;padding-block:50svh}
+.projectImage{margin:0}
+.projectImage figcaption{text-align:right;font-size:12px;margin-bottom:8px;color:var(--muted)}
+.projectImage img{display:block;width:100%;height:auto}
+.poster{display:block;position:relative;width:100%;aspect-ratio:710 / 1004;overflow:hidden}
+.poster img{position:absolute;max-width:none;object-fit:fill;left:-6.4972%;top:-3.3898%;width:112.9944%;height:109.1725%}
+.poster[data-poster="echo-05.png"] img{left:-2.2567%;top:-1.1964%;width:104.6544%;height:103.2901%}
+.poster[data-poster="echo-04-v2.png"] img{left:0;top:0;width:100%;height:100%}
+.collapseImage{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-out}
+.collapseImage:focus-visible{outline:2px solid var(--text);outline-offset:5px}
+:global(::view-transition-group(*)){animation-duration:750ms;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+:global(::view-transition-old(root)),:global(::view-transition-new(root)){animation-duration:300ms}
+@media(max-width:768px){.project{grid-template-columns:1fr;gap:24px}.projectInfo{position:static}.projectImages{gap:28px}}
+@media(prefers-reduced-motion:reduce){:global(::view-transition-group(*)){animation-duration:0s}}
+.tile[data-dimmed=true]{filter:grayscale(1);opacity:.35}
+.tileTop{display:flex;justify-content:flex-end;font-size:12px;width:100%}
+.tileBottom{font-size:9px;letter-spacing:.1em;opacity:.65}
+.symbol{font-size:clamp(28px,4vw,64px);font-weight:300;align-self:center;line-height:1.1}
+.dialog{border:0;padding:52px 24px 24px;background:var(--background);color:var(--text);width:min(1200px,92vw);max-height:90svh}
+.dialog::backdrop{background:#0008}
+.close{position:absolute;right:24px;top:14px;background:none;border:0;color:var(--text);font-size:12px;cursor:pointer;padding:8px}
+.preview{display:flex;flex-direction:column;gap:16px;margin:0;font-size:12px;color:var(--muted)}
+.preview img{display:block;width:100%;height:auto;max-height:70svh;object-fit:contain}
+@media(min-width:769px) and (max-height:900px){.gallery{padding-top:104px}}
+@media(min-width:769px) and (max-width:1100px){.wall{column-gap:12px}.tileTop{font-size:10px}}
+@media(max-width:768px){.gallery{margin-left:0;width:100%;padding:108px 24px 48px}.header{align-items:flex-start;flex-direction:column;gap:8px;margin-bottom:28px}.wall{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;row-gap:48px}.tileTop{font-size:10px}}
+@media(max-width:480px){.wall{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.tile{transition:none}}

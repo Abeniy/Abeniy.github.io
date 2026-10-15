@@ -1,6 +1,7 @@
 .gallery{--card-width:min(500px,42vw,54svh);padding-top:148px;min-height:100svh;overflow:hidden;background:var(--background);font-family:'DM Sans','PingFang SC','Microsoft YaHei',sans-serif}
 .gallery[data-ready=false] .rail,.gallery[data-ready=false] .controls{visibility:hidden}
 .gallery[data-ready=false] .card{transition:none}
+.filters .viewHeading{align-items:center;gap:28px;flex-shrink:0}
 .filters{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 5.5vw;font-size:12px;color:var(--muted)}.filters>div{display:flex;flex-wrap:wrap;gap:4px}.filters button{border:0;background:none;color:var(--muted);padding:10px 14px;cursor:pointer;font-size:12px}.filters button[aria-pressed=true]{color:var(--text);text-decoration:underline;text-underline-offset:6px}
 .rail{display:flex;align-items:center;gap:clamp(40px,8vw,144px);padding:48px calc((100% - var(--card-width))/2) 24px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;min-height:calc(var(--card-width) + 180px)}.rail::-webkit-scrollbar{display:none}
 .card{flex:0 0 var(--card-width);min-width:0;scroll-snap-align:center;transform:scale(.83);opacity:.55;transition:transform .4s,opacity .4s}.active{transform:scale(1);opacity:1}.card:focus-within{opacity:1}
