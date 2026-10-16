@@ -15,6 +15,13 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
   const fireLight = new THREE.PointLight('#ff9a45',15,14,1.6);fireLight.position.set(0,1.15,0);scene.add(fireLight);
   const fill = new THREE.DirectionalLight('#5169b9',.5);fill.position.set(8,6,-10);scene.add(fill);
   const materials: THREE.Material[]=[];
+  // Unlit fill matches the background exactly, with no light or shadow shading.
+  const toonMaterial=new THREE.MeshBasicMaterial({color:'#faf9f6',toneMapped:false,fog:false});materials.push(toonMaterial);
+  const inkMaterial=new THREE.LineBasicMaterial({color:'#706d63',transparent:true,opacity:.65});materials.push(inkMaterial);
+  const outlines:THREE.LineSegments[]=[];
+  const silhouettes:THREE.Mesh[]=[];
+  const silhouetteMaterial=new THREE.MeshBasicMaterial({color:'#a09c92',side:THREE.BackSide,toneMapped:false});materials.push(silhouetteMaterial);
+  let ground:THREE.Mesh|undefined;
   const mat = (color: string, extra: THREE.MeshStandardMaterialParameters={})=>{const m=new THREE.MeshStandardMaterial({color,flatShading:true,roughness:1,...extra});materials.push(m);return m;};
   const groundMat=mat('#92938b'); const bark=mat('#655444');const leaves=mat('#3b514b');const leaves2=mat('#536553');
   const rockMat=mat('#727c90'); const coal=mat('#322b27');const skin=mat('#d2a185'); const hair=mat('#292b2a');
@@ -26,10 +33,8 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
   const groundGeo=new THREE.PlaneGeometry(100,100,65,65);groundGeo.rotateX(-Math.PI/2);
   const positions=groundGeo.attributes.position;
   for(let i=0;i<positions.count;i++){const x=positions.getX(i),z=positions.getZ(i);const edge=Math.min(1,Math.hypot(x,z)/14);positions.setY(i,-.10+(random()-.5)*.22*edge);}
-  groundGeo.computeVertexNormals();mesh(groundGeo,groundMat);
-  // Broken natural rock walls frame the clearing; the high camera never reveals a horizon.
-  const cliffMat=mat('#697689');const cliffLight=mat('#849095');
-  for(let i=0;i<25;i++){const a=Math.PI*.72+i/24*Math.PI*1.48;const radius=10.7+random()*1.8;const x=Math.cos(a)*radius*1.12,z=Math.sin(a)*radius;const h=1.3+random()*3.7;const r=mesh(new THREE.DodecahedronGeometry(1,0),i%3?cliffMat:cliffLight,x,h*.45,z);r.scale.set(1.4+random()*1.5,h,1.2+random()*1.6);r.rotation.set((random()-.5)*.35,random()*Math.PI,(random()-.5)*.35);if(i%2===0){const ledge=mesh(new THREE.DodecahedronGeometry(1,0),cliffMat,x*.89,.35,z*.9);ledge.scale.set(1.8,.5,1.2);ledge.rotation.y=random()*4;}}
+  groundGeo.computeVertexNormals();ground=mesh(groundGeo,groundMat);
+  // The homepage focuses on the person and fire, without the enclosing rock walls.
   // Sparse ground detail uses instancing to preserve mobile performance.
   const grassMat=mat('#70775f',{side:THREE.DoubleSide});
   const bladeGeo=new THREE.BufferGeometry();bladeGeo.setAttribute('position',new THREE.Float32BufferAttribute([-.07,0,0,.07,0,0,.11,.5,.04],3));bladeGeo.computeVertexNormals();
@@ -48,7 +53,7 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
   const flames:THREE.Mesh[]=[];
   for(let i=0;i<7;i++){const h=.65+random()*.7;const f=mesh(new THREE.ConeGeometry(.15+random()*.12,h,5),flameMaterials[i%3],(random()-.5)*.48,.3+h/2,(random()-.5)*.4,flameGroup);f.rotation.z=(random()-.5)*.4;flames.push(f);}
   const person=new THREE.Group();person.position.set(1.65,0,.6);person.rotation.y=-.40;scene.add(person);
-  const seat=mesh(new THREE.CylinderGeometry(.25,.3,1.4,7),bark,.2,.25,.3,person);seat.rotation.z=Math.PI/2;
+  const seat=mesh(new THREE.CylinderGeometry(.25,.3,1.4,7),bark,.2,.25,.3,person);seat.rotation.z=Math.PI/2;seat.rotation.y=Math.PI/2;
   const torso=mesh(new THREE.CylinderGeometry(.26,.33,.78,7),jacket,0,.93,0,person);torso.rotation.z=-.10;
   mesh(new THREE.IcosahedronGeometry(.26,1),skin,-.07,1.58,-.01,person);
   const headHair=mesh(new THREE.IcosahedronGeometry(.275,1),hair,.015,1.67,.09,person);headHair.scale.set(1,1.07,.9);
@@ -64,6 +69,26 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
   starsGeo.setAttribute('position',new THREE.Float32BufferAttribute(starPositions,3));const starsMat=new THREE.PointsMaterial({color:'#d6e7e3',size:.14,transparent:true,opacity:.8,depthWrite:false,fog:false});materials.push(starsMat);const stars=new THREE.Points(starsGeo,starsMat);scene.add(stars);
   const sparksGeo=new THREE.BufferGeometry();const sparksData=new Float32Array(18*3);const sparkSeeds=Array.from({length:18},()=>random());sparksGeo.setAttribute('position',new THREE.BufferAttribute(sparksData,3));const sparksMat=new THREE.PointsMaterial({color:'#ffba65',size:.032,transparent:true,opacity:.75,depthWrite:false});materials.push(sparksMat);scene.add(new THREE.Points(sparksGeo,sparksMat));
   const smokeMaterial=new THREE.MeshBasicMaterial({color:'#7b8c90',transparent:true,opacity:.025,depthWrite:false});materials.push(smokeMaterial);const smoke:THREE.Mesh[]=[];for(let i=0;i<5;i++){const s=mesh(new THREE.IcosahedronGeometry(.35,0),smokeMaterial,0,2+i*.4,0);smoke.push(s);}
+  // Crease edges only: omit coplanar triangulation and keep normal depth occlusion.
+  const outlinedMeshes:THREE.Mesh[]=[];
+  scene.traverse(object=>{if(object instanceof THREE.Mesh&&!(object instanceof THREE.InstancedMesh)&&object!==ground&&!smoke.includes(object))outlinedMeshes.push(object);});
+  outlinedMeshes.forEach(object=>{const edge=new THREE.LineSegments(new THREE.EdgesGeometry(object.geometry,35),inkMaterial);edge.visible=false;object.add(edge);outlines.push(edge);});
+  // Rounded heads have no sharp creases: outline their silhouette, not every triangle.
+  outlinedMeshes.filter(object=>object.geometry instanceof THREE.IcosahedronGeometry&&object.geometry.parameters.detail>0).forEach(object=>{
+    const shell=new THREE.Mesh(object.geometry,silhouetteMaterial);shell.scale.setScalar(1.012);shell.visible=false;shell.userData.isOutline=true;object.add(shell);silhouettes.push(shell);
+  });
+  // Batch all repeated grass/pebble edges into one line geometry per instanced mesh.
+  const instancedDetails:THREE.InstancedMesh[]=[];
+  scene.traverse(object=>{if(object instanceof THREE.InstancedMesh)instancedDetails.push(object);});
+  instancedDetails.forEach(object=>{
+    // Keep the existing randomized placement, with a little more breathing room.
+    object.count=Math.floor(object.count*.75);
+    const source=new THREE.EdgesGeometry(object.geometry,35);const positions=source.getAttribute('position');
+    const vertices=new Float32Array(object.count*positions.count*3);const matrix=new THREE.Matrix4();const point=new THREE.Vector3();
+    for(let i=0;i<object.count;i++){object.getMatrixAt(i,matrix);for(let j=0;j<positions.count;j++){point.fromBufferAttribute(positions,j).applyMatrix4(matrix);point.toArray(vertices,(i*positions.count+j)*3);}}
+    const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(vertices,3));source.dispose();
+    const edge=new THREE.LineSegments(geometry,inkMaterial);edge.visible=false;object.add(edge);outlines.push(edge);
+  });
   let desired:Theme='night';let blend=0;let paused=false;let disposed=false;let visible=true;let inView=true;let frame=0;let last=0;let time=0;let frames=0;let sample=0;let reduced=false;let ready=false;
   const nightSky=new THREE.Color('#0b1129'),daySky=new THREE.Color('#c8dbdc');const nightFog=new THREE.Color('#10172f'),dayFog=new THREE.Color('#c8d7ce');
   const moonColor=new THREE.Color('#8196d0'),sunColor=new THREE.Color('#fff0d5'),nightAmbient=new THREE.Color('#72819b'),dayAmbient=new THREE.Color('#bcd4e0');
@@ -71,7 +96,7 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
   let mobile=false;
   function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;mobile=w<760;renderer.setPixelRatio(Math.min(window.devicePixelRatio,mobile?1:1.5));renderer.setSize(w,h,false);
     if(camera instanceof THREE.PerspectiveCamera){const view=blockoutViews[mobile?'mobile':'desktop'];camera.aspect=w/h;camera.fov=view.fov;camera.position.set(view.position[0],view.position[1],view.position[2]);camera.lookAt(new THREE.Vector3(...view.target));}
-    else{const halfHeight=mobile?12.5:10.5;camera.left=-halfHeight*w/h;camera.right=halfHeight*w/h;camera.top=halfHeight;camera.bottom=-halfHeight;camera.position.set(10,19,23);camera.lookAt(0,0,-2.6);}
+    else{const halfHeight=mobile?3.2:2.6;const horizontalOffset=halfHeight*w/h*.12;camera.left=-halfHeight*w/h-horizontalOffset;camera.right=halfHeight*w/h-horizontalOffset;camera.top=halfHeight;camera.bottom=-halfHeight;camera.position.set(6.7,7.7,10.2);camera.lookAt(.7,.7,.2);}
     camera.updateProjectionMatrix();renderer.shadowMap.needsUpdate=true;draw(0);}
   const observer=new ResizeObserver(resize);observer.observe(canvas);
   function draw(dt:number){
@@ -85,9 +110,24 @@ export function createCamp(canvas: HTMLCanvasElement, onReady: () => void, onSlo
     sparksGeo.attributes.position.needsUpdate=true;
     smoke.forEach((s,i)=>{const y=(time*.22+i*.5)%3;s.position.set(Math.sin(y)*.3,.8+y,-.05);s.scale.setScalar(.5+y*.5);});
     if(preview){camera.lookAt(new THREE.Vector3(...blockoutViews[mobile?'mobile':'desktop'].target));hemisphere.intensity=.45;sun.intensity=.65;fill.intensity=1.3;fireLight.intensity=42;fireLight.distance=10;fireLight.decay=2;renderer.toneMappingExposure=.95;smokeMaterial.opacity=0;sparksMat.opacity=0;}
-    else{smooth.lerp(pointer,.04);camera.lookAt(smooth.x*.35,smooth.y*.2,-2.6);}
+    else{smooth.lerp(pointer,.04);camera.lookAt(.7+smooth.x*.12,.7+smooth.y*.08,.2);}
+    const wireDay=!preview&&desired==='day';
+    scene.overrideMaterial=null;
+    scene.traverse(object=>{if(object instanceof THREE.Mesh&&!object.userData.isOutline){
+      if(!object.userData.originalMaterial)object.userData.originalMaterial=object.material;
+      object.material=wireDay?toonMaterial:object.userData.originalMaterial;
+    }});
+    outlines.forEach(edge=>{edge.visible=wireDay;});
+    silhouettes.forEach(shell=>{shell.visible=wireDay;});
+    if(ground)ground.visible=!wireDay;
+    smoke.forEach(s=>{s.visible=!wireDay;});
+    sparksMat.opacity=wireDay?0:preview?0:.75;
+    renderer.shadowMap.enabled=!wireDay;
+    scene.fog=wireDay?null:fog;
+    if(wireDay){(scene.background as THREE.Color).set('#faf9f6');renderer.toneMapping=THREE.NoToneMapping;hemisphere.intensity=1.1;hemisphere.color.set('#ffffff');sun.color.set('#ffffff');sun.intensity=1.4;fill.intensity=.15;fireLight.intensity=0;}
+    else renderer.toneMapping=THREE.ACESFilmicToneMapping;
     renderer.render(scene,camera);
-    positionHotspots([new THREE.Vector3(0,.8,0),new THREE.Vector3(1.65,1.1,.6)].map(p=>{p.project(camera);return {x:(p.x+1)*50,y:(1-p.y)*50};}));
+    positionHotspots([new THREE.Vector3(0,.8,0),new THREE.Vector3(1.65,1.1,.6),marshmallow.getWorldPosition(new THREE.Vector3())].map(p=>{p.project(camera);return {x:(p.x+1)*50,y:(1-p.y)*50};}));
     if(!ready){ready=true;onReady();}
   }
   function loop(now:number){frame=0;if(disposed||!visible||!inView)return;const dt=last?Math.min((now-last)/1000,.1):.016;last=now;if(!paused&&!reduced)time+=dt;draw(dt);if(!paused&&!reduced){sample+=dt;frames++;if(sample>6){if(frames/sample<22){onSlow();return;}sample=0;frames=0;}}if(!paused&&!reduced||Math.abs(blend-(desired==='day'?1:0))>.001)frame=requestAnimationFrame(loop);}

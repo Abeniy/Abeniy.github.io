@@ -3,3 +3,7 @@
 .hotspots a{transform:translate(-50%,-50%)}.fire{left:calc(50% - 4svh);top:54%}.person{left:calc(50% + 2svh);top:55%}.sky{left:50%;top:25%}
 @media(max-width:759px){.hotspots{display:none}.pause{bottom:20px;right:20px}}
 .preview{--text:#e3e7ee;--surface:#152031;--line:#344154}.preview .sky{display:none}.preview .fire{left:64%;top:62%}.preview .person{left:70%;top:60%}
+.hotspots .marshmallow{left:50%;top:50%;width:44px;height:44px;z-index:1}
+:global(:root[data-theme=day]:has([data-camp-home])){--background:#faf9f6;--surface:#f7f5f0;--text:#2a2622;--muted:#7a746c;--line:#e4e0d8;--accent:#8aab82}
+:global([data-theme=day]) .camp:not(.preview){background:#faf9f6}
+:global([data-theme=day]) .camp:not(.preview) .backdrop{display:none}
